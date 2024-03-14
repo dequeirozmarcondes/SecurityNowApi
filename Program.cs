@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SecurityNowApi.Context;
+using SecurityNowApi.Model;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // Add Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().
     AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
