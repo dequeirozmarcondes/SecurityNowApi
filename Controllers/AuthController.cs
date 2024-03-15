@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SecurityNowApi.DTOs;
 using SecurityNowApi.Interfaces;
 using SecurityNowApi.Model;
@@ -27,6 +28,13 @@ namespace SecurityNowApi.Controllers
             _roleManager = roleManager;
             _configuration = configuration;
             _logger = logger;
+        }
+
+        [HttpGet]
+        [Route("GetTest")]  
+        public async Task<IActionResult> Teste()
+        {
+            return StatusCode(StatusCodes.Status200OK, new Response {Status = "Ok",  Message = "True"}); 
         }
 
         // POST: /api/auth/CreateRole
