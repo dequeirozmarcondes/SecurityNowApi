@@ -48,6 +48,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Add Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "dequeirozmarcondes"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+    options.AddPolicy("ExclusivePolicyOnly", policy => policy.RequireAssertion(context =>
+    context.User.HasClaim(claim => claim.Type == "id" &&
+    claim.Value == "dequeirozmarcondes") ||
+    context.User.IsInRole("SuperAdmin")));
+});
+
 // Add the token service to the container
 builder.Services.AddScoped<ITokenService, TokenService>();
 

@@ -29,6 +29,62 @@ namespace SecurityNowApi.Controllers
             _logger = logger;
         }
 
+        // POST: /api/auth/CreateRole
+        [HttpPost]
+        [Route("CreateRole")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
+            {
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+
+                if (roleResult.Succeeded)
+                {
+                    _logger.LogInformation(1, $"Role {roleName} Roles Added!");
+                    return StatusCode(StatusCodes.Status200OK,
+                        new Response { Status = "Success", Message = $"Role {roleName} added successfully" });
+                }
+                else
+                {
+                    _logger.LogInformation(2, "Error");
+                    return StatusCode(StatusCodes.Status400BadRequest,
+                        new Response { Status = "Error", Message = $"Issue adding the newm {roleName} role" });
+                }
+            }
+
+            return StatusCode(StatusCodes.Status400BadRequest,
+                               new Response { Status = "Error", Message = $"Role {roleName} already exists" });
+        }
+
+        // POST: /api/auth/AddUserToRole
+        [HttpPost]
+        [Route("AddUserToRole")]
+
+        public async Task<IActionResult> AddUserToRole(string email, string roleName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if(user != null)
+            {
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation(1, $"User {email} added to {roleName} role");
+                    return StatusCode(StatusCodes.Status200OK,
+                          new Response { Status = "Success", Message = $"User {user.Email} added to the {roleName} role" });    
+                }
+                else
+                {
+                    _logger.LogInformation(2, $"Error: Unable to add user {user.Email} to the {roleName} role");
+                    return StatusCode(StatusCodes.Status400BadRequest,
+                                                 new Response { Status = "Error", Message = $"Unable to add user {user.Email} to the {roleName} role" });
+                }
+            }
+            return BadRequest(new { error = "Unable to find user" });
+        }
+
         // POST: /api/auth/login
         [HttpPost]
         [Route("login")]
@@ -45,7 +101,7 @@ namespace SecurityNowApi.Controllers
             {
               new Claim(ClaimTypes.Name, user.UserName!),
               new Claim(ClaimTypes.Email, user.Email!),
-              new Claim("id", user.UserName!),
+              new Claim("id", user.UserName!), // Custom claim
               new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
